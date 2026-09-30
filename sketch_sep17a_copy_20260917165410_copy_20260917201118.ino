@@ -7,29 +7,29 @@
 #define OLED_RESET -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// กำหนดขาอุปกรณ์
-#define MOISTURE_PIN A0
-#define BUZZER_PIN 8
-#define LED1_PIN 2
-#define LED2_PIN 3
-#define LED3_PIN 4
-#define LED4_PIN 5
 
-// ตั้งค่า Calibration ของเซนเซอร์ความชื้น
+#define MOISTURE_PIN A0
+#define BUZZER_PIN 10
+#define LED1_PIN 9
+#define LED2_PIN 8
+#define LED3_PIN 7
+#define LED4_PIN 6
+
+
 int AirValue = 750;   
 int WaterValue = 350; 
 
 void setup() {
   Serial.begin(9600);
 
-  // ตั้งค่าให้ขา LED และ Buzzer เป็นขาออก (OUTPUT)
+  
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED1_PIN, OUTPUT);
   pinMode(LED2_PIN, OUTPUT);
   pinMode(LED3_PIN, OUTPUT);
   pinMode(LED4_PIN, OUTPUT);
 
-  // เริ่มต้นหน้าจอ OLED
+
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
@@ -45,7 +45,6 @@ void loop() {
   if(moisturePercent > 100) moisturePercent = 100;
   if(moisturePercent < 0) moisturePercent = 0;
 
-  // --- 1. ส่วนแสดงผลจอ OLED ---
   display.clearDisplay();
   
   display.setTextSize(1);
@@ -64,25 +63,33 @@ void loop() {
   
   display.display();
 
-  // --- 2. ส่วนแสดงผล LED 4 ระดับ ---
-  // LED1 ติดเมื่อความชื้น > 0%
-  digitalWrite(LED1_PIN, moisturePercent >= 0 ? HIGH : LOW);
-  // LED2 ติดเมื่อความชื้น >= 25%
-  digitalWrite(LED2_PIN, moisturePercent >= 25 ? HIGH : LOW);
-  // LED3 ติดเมื่อความชื้น >= 50%
-  digitalWrite(LED3_PIN, moisturePercent >= 50 ? HIGH : LOW);
-  // LED4 ติดเมื่อความชื้น >= 75%
-  digitalWrite(LED4_PIN, moisturePercent >= 75 ? HIGH : LOW);
+  digitalWrite(LED1_PIN, moisturePercent >= 80 and moisturePercent <=100 ? HIGH : LOW);
+  
+  digitalWrite(LED2_PIN, moisturePercent >= 70 and moisturePercent < 80 ? HIGH : LOW);
+  
+  digitalWrite(LED3_PIN, moisturePercent >= 50 and moisturePercent < 70 ? HIGH : LOW);
 
-  // --- 3. ส่วนแจ้งเตือน Buzzer ---
-  // ถ้าน้ำแห้งกว่า 20% ให้บัซเซอร์ดังแจ้งเตือน
-  if(moisturePercent > 70) {
-    tone(BUZZER_PIN, 200); // สร้างเสียงความถี่ 1000Hz (รองรับทั้ง Active/Passive)
-    delay(1500);             // ดัง 0.2 วินาที
-    noTone(BUZZER_PIN);     // ดับเสียง
-    delay(800);             // เงียบ 0.8 วินาที (รวมเป็น 1 รอบ = 1 วินาทีพอดี)
+  digitalWrite(LED4_PIN, moisturePercent  >= 20 and moisturePercent <50 ? HIGH : LOW);
+
+  if(moisturePercent <=30 ) {
+    tone(BUZZER_PIN, 2000); 
+    delay(1500);             
+    noTone(BUZZER_PIN);     
+    delay(800);             
   } else {
-    noTone(BUZZER_PIN);     // ถ้าความชื้นปกติ ให้ปิดเสียง
-    delay(1000);            // รออัปเดตข้อมูลใหม่ทุกๆ 1 วินาที
+    noTone(BUZZER_PIN);     
+    delay(1000);            
   }
 }
+
+// LED4: ไฟเขียว (ความชื้นสูงมาก มากกว่าหรือเท่ากับ 80%)
+  digitalWrite(LED4_PIN, moisturePercent >= 80 ? HIGH : LOW);
+  
+  // LED3: ไฟน้ำเงิน (ความชื้นปานกลางค่อนข้างสูง ช่วง 70% ถึง 79%)
+  digitalWrite(LED3_PIN, moisturePercent >= 70 && moisturePercent < 80 ? HIGH : LOW);
+  
+  // LED2: ไฟเหลือง (ความชื้นปานกลาง ช่วง 50% ถึง 69%)
+  digitalWrite(LED2_PIN, moisturePercent >= 50 && moisturePercent < 70 ? HIGH : LOW);
+
+  // LED1: ไฟแดง (ดินแห้ง / ความชื้นต่ำกว่า 50% หรืออยู่ในช่วง 20% - 49%)
+  digitalWrite(LED1_PIN, moisturePercent >= 20 && moisturePercent < 50 ? HIGH : LOW);
