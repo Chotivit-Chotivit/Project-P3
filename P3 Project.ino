@@ -10,10 +10,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define MOISTURE_PIN A0
 #define BUZZER_PIN 10
-#define LED1_PIN 9
-#define LED2_PIN 8
-#define LED3_PIN 7
-#define LED4_PIN 6
+#define LED1_PIN 6
+#define LED2_PIN 7
+#define LED3_PIN 8
+#define LED4_PIN 9
 
 
 int AirValue = 750;   
@@ -63,15 +63,13 @@ void loop() {
   
   display.display();
 
-  digitalWrite(LED1_PIN, moisturePercent >= 80 and moisturePercent <=100 ? HIGH : LOW);
+  digitalWrite(LED4_PIN, moisturePercent >= 80 ? LOW : HIGH);
+  digitalWrite(LED3_PIN, (moisturePercent >= 70 && moisturePercent < 80) ? LOW : HIGH);
+  digitalWrite(LED2_PIN, (moisturePercent >= 50 && moisturePercent < 70) ? LOW : HIGH);
+  digitalWrite(LED1_PIN, moisturePercent < 50 ? LOW : HIGH);
   
-  digitalWrite(LED2_PIN, moisturePercent >= 70 and moisturePercent < 80 ? HIGH : LOW);
-  
-  digitalWrite(LED3_PIN, moisturePercent >= 50 and moisturePercent < 70 ? HIGH : LOW);
 
-  digitalWrite(LED4_PIN, moisturePercent  >= 20 and moisturePercent <50 ? HIGH : LOW);
-
-  if(moisturePercent <=30 ) {
+  if(moisturePercent <=40 ) {
     tone(BUZZER_PIN, 2000); 
     delay(1500);             
     noTone(BUZZER_PIN);     
@@ -81,15 +79,3 @@ void loop() {
     delay(1000);            
   }
 }
-
-// LED4: ไฟเขียว (ความชื้นสูงมาก มากกว่าหรือเท่ากับ 80%)
-  digitalWrite(LED4_PIN, moisturePercent >= 80 ? HIGH : LOW);
-  
-  // LED3: ไฟน้ำเงิน (ความชื้นปานกลางค่อนข้างสูง ช่วง 70% ถึง 79%)
-  digitalWrite(LED3_PIN, moisturePercent >= 70 && moisturePercent < 80 ? HIGH : LOW);
-  
-  // LED2: ไฟเหลือง (ความชื้นปานกลาง ช่วง 50% ถึง 69%)
-  digitalWrite(LED2_PIN, moisturePercent >= 50 && moisturePercent < 70 ? HIGH : LOW);
-
-  // LED1: ไฟแดง (ดินแห้ง / ความชื้นต่ำกว่า 50% หรืออยู่ในช่วง 20% - 49%)
-  digitalWrite(LED1_PIN, moisturePercent >= 20 && moisturePercent < 50 ? HIGH : LOW);
